@@ -1,0 +1,158 @@
+<HEAD>
+  <TITLE>Add Images to File</TITLE>
+  <HTA:APPLICATION ID="oMyApp"
+    APPLICATIONNAME="Add Images"
+    BORDER="Dialog"
+    CAPTION="Yes"
+    SCROLL="NO"
+    SHOWINTASKBAR="yes"
+    SINGLEINSTANCE="yes"
+    SYSMENU="Yes"
+    WINDOWSTATE="maximize">
+	
+<style type="text/css">
+body {
+	background-color: #fdfeff;
+	color: darkblue;
+	font-family: Calibri;
+	font-size: 12pt;
+	margin: 4em 3em;
+}
+</style>
+
+</HEAD>
+<BODY>
+<SCRIPT LANGUAGE="VBScript">
+
+Sub Window_OnLoad
+    Window.FilePath.Focus
+End Sub
+
+Sub submit_OnClick
+	
+	If (FilePath.value = "") Then
+		msgbox "Path can not be blank"
+	Else 
+		Set fso = CreateObject("Scripting.FileSystemObject")
+		Set shl = CreateObject("WScript.Shell")
+
+		if (not fso.FolderExists(FilePath.value)) then 
+			msgbox "Invalid Directory """&UCASE(FilePath.value) &""""& vbCrLf & vbCrLf & vbCrLf &"Please Enter a Valid directory !",16,"Invalid Directory"
+		Else			
+			Dim strProduct    
+			oElements = Window.Site.SelectedIndex
+			strProduct = Window.Site.Options(oElements).Text
+		
+			Select Case strProduct
+			Case "MS Word"
+				MsgBox "You selected Ohio",64,"Selection"
+				DocToPdf "C:\D-Drive\addImages\Doc1.docx",""
+				LoadImagesToWord(FilePath.value)
+			Case "Pdf"
+				MsgBox "You selected Texas",64,"Selection"      
+			End Select
+		End If	
+	End If
+    
+End Sub
+
+Function LoadImagesToWord(imagesPath)
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+	objStartFolder = imagesPath
+
+	Set ObjWord = CreateObject("Word.Application")
+	ObjWord.Visible = False
+	Set objDoc = ObjWord.Documents.Add()
+	Set objSelection = ObjWord.Selection
+
+	Set obr = objDoc.Range()
+	Set objShape = objDoc.InlineShapes 
+
+	Set colFiles = objFolder.Files
+
+			For Each objFile In objFolder.Files			
+					If LCase(objFSO.GetExtensionName(objFile)) = LCase("jpg") Then
+						objSelection.InsertCaptain "Figure", vbTab & objFSO.GetBaseName(objFile), "", wdCaptionPositionBelow
+						objSelection.InlineShapes.AddPicture (objFile.Path)
+						objSelection.TypeText (vbCrLf)
+						objSelection.TypeText (vbCrLf)
+						objSelection.TypeText (vbCrLf)
+					Else
+						'Wscript.Echo "No PNG files in """ & objFile.Path & """"
+						
+					End If
+					
+			Next
+			
+	DOCXFilePath = objFSO.BuildPath(objFolder, "Embedded_Screenshots_File.docx")
+	objDoc.SaveAs (DOCXFilePath)
+	ObjWord.Quit
+
+End Function
+
+Function DocToPdf(docInputFile, pdfOutputFile )
+
+  Dim fileSystemObject
+  Dim wordApplication
+  Dim wordDocument
+  Dim wordDocuments
+  Dim baseFolder
+
+  Set fileSystemObject = CreateObject("Scripting.FileSystemObject")
+  Set wordApplication = CreateObject("Word.Application")
+  Set wordDocuments = wordApplication.Documents
+
+  docInputFile = fileSystemObject.GetAbsolutePathName(docInputFile)
+  baseFolder = fileSystemObject.GetParentFolderName(docInputFile)
+
+  If Len(pdfOutputFile) = 0 Then
+    pdfOutputFile = fileSystemObject.GetBaseName(docInputFile) + ".pdf"
+  End If
+
+  If Len(fileSystemObject.GetParentFolderName(pdfOutputFile)) = 0 Then
+    pdfOutputFile = baseFolder + "\" + pdfOutputFile
+  End If
+
+  ' Disable any potential macros of the word document.
+  wordApplication.WordBasic.DisableAutoMacros
+
+  Set wordDocument = wordDocuments.Open(docInputFile)
+
+  ' See http://msdn2.microsoft.com/en-us/library/bb221597.aspx
+  wordDocument.SaveAs pdfOutputFile, wdFormatPDF
+
+  wordDocument.Close WdDoNotSaveChanges
+  wordApplication.Quit WdDoNotSaveChanges
+
+  Set wordApplication = Nothing
+  Set fileSystemObject = Nothing
+
+End Function
+
+Sub close_OnClick
+    Window.Close
+End Sub
+
+
+
+</SCRIPT>
+
+<H2>Add Images to File</H2>
+<P>Provide Images Directory :
+<INPUT NAME="FilePath" TYPE="TEXT" SIZE="50">
+
+<P>
+<P>Please select the output File Type:
+<SELECT NAME="Site">
+    <OPTION>MS Word</OPTION>
+    <OPTION>Pdf</OPTION>   
+</SELECT>
+<P>
+<BR>
+<BR>
+<Input Type = "Button" Name = "submit" VALUE = "SUBMIT">
+<Input Type = "Button" Name = "close" VALUE = "CLOSE">
+<BR>
+<BR>
+
+</BODY>
