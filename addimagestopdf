@@ -1,38 +1,37 @@
-Dim ClassName
-Dim QP
+Const wdExportAllDocument = 0
+Const wdExportOptimizeForPrint = 0
+Const wdExportDocumentContent = 0
+Const wdExportFormatPDF = 17
+Const wdExportCreateHeadingBookmarks = 1
 
-Dim OriginalPDF
-Dim UpdatedPDF
-Dim lWidth
-Dim lHeight   
+if  Wscript.Arguments.Count > 0 Then
+    ' Get the running instance of MS Word. If Word is not running, Create it
+    On Error Resume Next
+    Set objWord = GetObject(, "Word.Application")
+    If Err <> 0 Then
+        Set objWord = CreateObject("Word.Application")
+    End If
+    On Error GoTo 0
 
-ClassName = "QuickPDFLite0718.PDFLibrary"
-OriginalPDF = "original.pdf"
-UpdatedPDF = "original_updated.pdf"
-NewImage = "image.png"
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    Set objFile = objFSO.GetFile(WScript.Arguments(0))
+    Set objDoc = objWord.Documents.Open(WScript.Arguments(0),,TRUE)
 
-Set QP = CreateObject(ClassName)
+    'Export to PDF using preferred settings
+    pdf = objWord.ActiveDocument.ExportAsFixedFormat( _
+        WScript.Arguments(1), _
+        wdExportFormatPDF, False, wdExportOptimizeForPrint, _
+        wdExportAllDocument,,, _
+        wdExportDocumentContent, _
+        False, True, _
+        wdExportCreateHeadingBookmarks _
+    )
 
-//' Load the PDF that you want to add the image to
-Call QP.LoadFromFile(OriginalPDF)
-
-//' Load the image that you'd like to add to the PDF
-Call QP.AddImageFromFile(NewImage, 0)
-
-//' Get the width and height of the image
-lWidth = QP.ImageWidth()
-lHeight = QP.ImageHeight()
-
-//' Draw the image onto the page using the the images
-//' height and width. The image will be drawn in the
-//' top right hand corner of the page.
-Call QP.DrawImage(0, QP.PageHeight, lWidth, lHeight)
-
-//' Save the new PDF to disk
-If QP.SaveToFile(UpdatedPDF) = 1 Then
-WScript.Echo("File " + UpdatedPDF + " written successfully")
+    'Quit MS Word
+    objWord.DisplayAlerts = False
+    objWord.Quit(False)
+    set objWord = nothing
+    set objFSO = nothing
 Else
-WScript.Echo("Error, file could not be written")
+    msgbox("You must select a file to convert")
 End If
-
-Set QP = Nothing
