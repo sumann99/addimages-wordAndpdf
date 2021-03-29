@@ -1,217 +1,216 @@
 <HEAD>
-		  <TITLE>Add Images to File</TITLE>
-		  <HTA:APPLICATION ID="oMyApp"
-			APPLICATIONNAME="Add Images"
-			BORDER="Dialog"
-			CAPTION="Yes"
-			SCROLL="NO"
-			SHOWINTASKBAR="yes"
-			SINGLEINSTANCE="yes"
-			SYSMENU="Yes"
-			WINDOWSTATE="maximize">
-			
-		<style type="text/css">
-				body {
-				background-color: #fdfeff;
-				color: darkblue;
-				font-family: Calibri;
-				font-size: 12pt;
-				margin: 4em 3em;
-				}
-		</style>
-		
+<TITLE>Add Images To File</TITLE>
+<HTA:APPLICATION ID="oMyApp"
+APPLICATIONNAME="Add Images"
+BORDER="Dialog"
+CAPTION="Yes"
+SCROLL="NO"
+SHOWINTASKBAR="yes"
+SINGLEINSTANCE="yes"
+SYSMENU="Yes"
+WINDOWSTATE="maximize">
+
+<style type="text/css">
+body {
+background-color: #fdfeff;
+color: darkblue;
+font-family: Calibri;
+font-size: 12pt;
+margin: 4em 3em;
+}
+</style>
+
 </HEAD>
 <BODY>
 <SCRIPT LANGUAGE="VBScript">
 
-Sub Window_OnLoad
+Sub Window_OnLoad()
     Window.FilePath.value =""
     Window.FilePath.Focus
 End Sub
 
-Sub submit_OnClick
-	On Error Resume Next
-	If (FilePath.value = "") Then
-		msgbox "Path can not be blank",16,"Empty Directory value"
-	Else
-		Set fso = CreateObject("Scripting.FileSystemObject")
-		Set shl = CreateObject("WScript.Shell")
-
-	if (not fso.FolderExists(FilePath.value)) then
-		msgbox "Invalid Directory """&UCASE(FilePath.value) &""""& vbCrLf & vbCrLf & vbCrLf &"Please Enter a Valid directory !",16,"Invalid Directory"
-	Else
-		Dim strProduct    
-		oElements = Window.Site.SelectedIndex
-		strProduct = Window.Site.Options(oElements).Text
-		fileName = "Embedded_Screenshots_File"
-
-Select Case strProduct
-Case "MS Word"
-	Err.Clear
-	LoadImagesToWord FilePath.value , fileName&".docx"
-	If Err.Number <> 0 Then
-		MsgBox "Failed to Create consolidated word file",16,"Failed"
-	Else
-		MsgBox "Images are exported to : "&FilePath.value&"\"&fileName&".docx",0,"Success"	
-	End If
-Case "pdf"
-	Err.Clear
-	Doc2PDF FilePath.value&"\"&fileName&".docx"
-	deleteFile (FilePath.value&"\"&fileName&".docx")
-	If Err.Number <> 0 Then
-		MsgBox "Failed to Create consolidated pdf file" ,16 ,"Failed"
-	Else
-		MsgBox "Images are exported to pdf: "&FilePath.value&"\"&fileName&".pdf",0,"Success"	
-	End If
-End Select
+Sub submit_OnClick()
+    On Error Resume Next
+    If (FilePath.value = "") Then
+        msgbox "Path can Not be blank",16,"Empty Directory value"
+    Else
+        Set fso = CreateObject("Scripting.FileSystemObject")
+        Set shl = CreateObject("WScript.Shell")
+        
+        if (not fso.FolderExists(FilePath.value)) Then
+        msgbox "Invalid Directory """&UCASE(FilePath.value) &""""& vbCrLf & vbCrLf & vbCrLf &"Please Enter a Valid directory !",16,"Invalid Directory"
+    Else
+        Dim strProduct
+        oElements = Window.Site.SelectedIndex
+        strProduct = Window.Site.Options(oElements).Text
+        fileName = "Embedded_Screenshots_File"
+        
+        Select Case strProduct
+            Case "MS Word"
+                Err.Clear
+                LoadImagesToWord FilePath.value , fileName&".docx"
+                If Err.Number <> 0 Then
+                    MsgBox "Failed To Create consolidated word file",16,"Failed"
+                Else
+                    MsgBox "Images are exported To : "&FilePath.value&"\"&fileName&".docx",0,"Success"
+                End If
+            Case "Pdf"
+                Err.Clear
+		LoadImagesToWord FilePath.value , fileName&".docx"
+                Doc2PDF FilePath.value&"\"&fileName&".docx"
+                deleteFile (FilePath.value&"\"&fileName&".docx")
+                If Err.Number <> 0 Then
+                    MsgBox "Failed To Create consolidated pdf file" ,16 ,"Failed"
+                Else
+                    MsgBox "Images are exported To pdf: "&FilePath.value&"\"&fileName&".pdf",0,"Success"
+                End If
+        End Select
+    End If
 End If
-End If
-   
+
 End Sub
 
 Sub Doc2PDF(fPath)
-	Dim objDoc, objFile, objFSO, objWord, strFile, strPDF
-	Const wdFormatPDF = 17
-	
-	'Create a File System object
-	Set objFSO = CreateObject( "Scripting.FileSystemObject" )
-	
-	'Create a Word object
-	Set objWord = CreateObject( "Word.Application" )
-	
-	With objWord
-	.visible = False
-	'Check if the Word document exists
-		If objFSO.FileExists(fPath) Then
-			Set objFile = objFSO.GetFile(fPath)
-			strFile = objFile.Path
-		Else
-			msgbox "FILE OPEN ERROR: The file does not exist" & vbCrLf
-			'Close Word
-			.Quit
-			Exit Sub
-		End If
-		
-		strPDF = objFSO.BuildPath( objFile.ParentFolder,_
-				 objFSO.GetBaseName( objFile ) & ".pdf ")
-		
-		'Open the word document 
-		.Documents.Open strFile
-		
-		'Make the opened file the active document
-		Set  objDoc = .ActiveDocument 
-			
-		' Save as HTML
-		objDoc.SaveAs strPDF, wdFormatPDF
-		
-		'Close the active document
-		objDoc.close
-		
-		'Close Word
-		.Quit
-	End With
+    Dim objDoc, objFile, objFSO, objWord, strFile, strPDF
+    Const wdFormatPDF = 17
+    
+    'Create a File System object
+    Set objFSO = CreateObject( "Scripting.FileSystemObject" )
+    
+    'Create a Word object
+    Set objWord = CreateObject( "Word.Application" )
+    
+    With objWord
+        .visible = FALSE
+        'Check if the Word document exists
+        If objFSO.FileExists(fPath) Then
+            Set objFile = objFSO.GetFile(fPath)
+            strFile = objFile.Path
+        Else
+            msgbox "FILE OPEN ERROR: The file does Not exist" & vbCrLf
+            'Close Word
+            .Quit
+            Exit Sub
+        End If
+        
+        strPDF = objFSO.BuildPath( objFile.ParentFolder,_
+        objFSO.GetBaseName( objFile ) & ".pdf ")
+        
+        'Open the word document
+        .Documents.Open strFile
+        
+        'Make the opened file the active document
+        Set  objDoc = .ActiveDocument
+        
+        ' Save      as HTML
+        objDoc.SaveAs strPDF, wdFormatPDF
+        
+        'Close the active document
+        objDoc.close
+        
+        'Close Word
+        .Quit
+    End With
 End Sub
-		
+
 Function LoadImagesToWord(imagesPath,fileName)
-	Set objFSO = CreateObject("Scripting.FileSystemObject")
-	Set ObjWord = CreateObject("Word.Application")
-	ObjWord.Visible = False
-	Set objDoc = ObjWord.Documents.Add()
-	Set objSelection = ObjWord.Selection
-	
-	Set obr = objDoc.Range()
-	Set objShape = objDoc.InlineShapes
-
-Set objFolder = objFSO.GetFolder(imagesPath)
-Set colFiles = objFolder.Files
-For Each objFile In objFolder.Files
-		If LCase(objFSO.GetExtensionName(objFile)) = LCase("JPAG") Then
-			objSelection.InsertCaptain "Figure", vbTab & objFSO.GetBaseName(objFile), "", wdCaptionPositionBelow
-			objSelection.InlineShapes.AddPicture (objFile.Path)
-			objSelection.TypeText (vbCrLf)
-			objSelection.TypeText (vbCrLf)
-			objSelection.TypeText (vbCrLf)
-		Else
-			'Wscript.Echo "No PNG files in """ & objFile.Path & """"
-		
-		End If
-Next
-
-DOCXFilePath = objFSO.BuildPath(objFolder, fileName)
-objDoc.SaveAs (DOCXFilePath)
-ObjWord.Quit
-
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    Set ObjWord = CreateObject("Word.Application")
+    ObjWord.Visible = FALSE
+    Set objDoc = ObjWord.Documents.Add()
+    Set objSelection = ObjWord.Selection
+    
+    Set obr = objDoc.Range()
+    Set objShape = objDoc.InlineShapes
+    
+    Set objFolder = objFSO.GetFolder(imagesPath)
+    Set colFiles = objFolder.Files
+    For Each objFile In objFolder.Files
+        If LCase(objFSO.GetExtensionName(objFile)) = LCase("JPAG") Then
+            objSelection.InsertCaption "Figure", vbTab & objFSO.GetBaseName(objFile), "", wdCaptionPositionBelow
+            objSelection.InlineShapes.AddPicture (objFile.Path)
+            objSelection.TypeText (vbCrLf)
+            objSelection.TypeText (vbCrLf)
+            objSelection.TypeText (vbCrLf)
+        Else
+            'Wscript.Echo "No PNG files in """ & objFile.Path & """"
+            
+        End If
+    Next
+    
+    DOCXFilePath = objFSO.BuildPath(objFolder, fileName)
+    objDoc.SaveAs (DOCXFilePath)
+    ObjWord.Quit
+    
 End Function
 
 Function DocToPdf(docInputFile,pdfOutputFile)
-
-  Dim fileSystemObject
-  Dim wordApplication
-  Dim wordDocument
-  Dim wordDocuments
-  Dim baseFolder
-
-  Set fileSystemObject = CreateObject("Scripting.FileSystemObject")
-  Set wordApplication = CreateObject("Word.Application")
-  Set wordDocuments = wordApplication.Documents
-
-  docInputFile = fileSystemObject.GetAbsolutePathName(docInputFile)
-  baseFolder = fileSystemObject.GetParentFolderName(docInputFile)
-
-  If Len(pdfOutputFile) = 0 Then
-    pdfOutputFile = fileSystemObject.GetBaseName(docInputFile) + ".pdf"
-  End If
-
-  If Len(fileSystemObject.GetParentFolderName(pdfOutputFile)) = 0 Then
-    pdfOutputFile = baseFolder + "\" + pdfOutputFile
-  End If
-
-  ' Disable any potential macros of the word document.
-  wordApplication.WordBasic.DisableAutoMacros
-
-  Set wordDocument = wordDocuments.Open(docInputFile)
-
-  ' See http://msdn2.microsoft.com/en-us/library/bb221597.aspx
-  wordDocument.SaveAs pdfOutputFile, wdFormatPDF
-
-  wordDocument.Close WdDoNotSaveChanges
-  wordApplication.Quit WdDoNotSaveChanges
-
-  Set wordApplication = Nothing
-  Set fileSystemObject = Nothing
-
+    
+    Dim fileSystemObject
+    Dim wordApplication
+    Dim wordDocument
+    Dim wordDocuments
+    Dim baseFolder
+    
+    Set fileSystemObject = CreateObject("Scripting.FileSystemObject")
+    Set wordApplication = CreateObject("Word.Application")
+    Set wordDocuments = wordApplication.Documents
+    
+    docInputFile = fileSystemObject.GetAbsolutePathName(docInputFile)
+    baseFolder = fileSystemObject.GetParentFolderName(docInputFile)
+    
+    If Len(pdfOutputFile) = 0 Then
+        pdfOutputFile = fileSystemObject.GetBaseName(docInputFile) + ".pdf"
+    End If
+    
+    If Len(fileSystemObject.GetParentFolderName(pdfOutputFile)) = 0 Then
+        pdfOutputFile = baseFolder + "\" + pdfOutputFile
+    End If
+    
+    ' Disable any potential macros of the word document.
+    wordApplication.WordBasic.DisableAutoMacros
+    
+    Set wordDocument = wordDocuments.Open(docInputFile)
+    
+    ' See http://msdn2.microsoft.com/en-us/library/bb221597.aspx
+    wordDocument.SaveAs pdfOutputFile, wdFormatPDF
+    
+    wordDocument.Close WdDoNotSaveChanges
+    wordApplication.Quit WdDoNotSaveChanges
+    
+    Set wordApplication = Nothing
+    Set fileSystemObject = Nothing
+    
 End Function
 
-Sub close_OnClick
+Sub close_OnClick()
     Window.Close
 End Sub
 
 Function deleteFile(fPath)
-	dim filesys
-	Set filesys = CreateObject("Scripting.FileSystemObject")
-		If filesys.FileExists(fPath) Then
-			filesys.DeleteFile fPath
-		End If
+    dim filesys
+    Set filesys = CreateObject("Scripting.FileSystemObject")
+    If filesys.FileExists(fPath) Then
+        filesys.DeleteFile fPath
+    End If
 End Function
-
 
 </SCRIPT>
 
-<H2>Add Images to File</H2>
+<H2>Add Images To File</H2>
 <P>Provide Images Directory :
 <INPUT NAME="FilePath" TYPE="TEXT" SIZE="50">
 
 <P>
-		<P>Please select the output File Type:
-			<SELECT NAME="Site">
-				<OPTION>MS Word</OPTION>
-				<OPTION>Pdf</OPTION>  
-			</SELECT>
-		<P>		
-		<BR>
-				<Input Type = "Button" Name = "submit" VALUE = "SUBMIT">
-				<Input Type = "Button" Name = "close" VALUE = "CLOSE">
-		<BR>
-		<BR>
-
+<P>Please Select the output File Type:
+<SELECT NAME="Site">
+<OPTION>MS Word</OPTION>
+<OPTION>Pdf</OPTION>
+</SELECT>
+<P>
+<BR>
+<Input Type = "Button" Name = "submit" VALUE = "SUBMIT">
+<Input Type = "Button" Name = "close" VALUE = "CLOSE">
+<BR>
+<BR>
 </BODY>
